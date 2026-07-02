@@ -1,0 +1,38 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "근골격계평가",
+  "version": "0.1.0",
+  "identifier": "com.local.msd-assessment",
+  "build": {
+    "frontendDist": "../frontend"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "근골격계 평가 - RULA / REBA / OWAS",
+        "width": 1280,
+        "height": 860,
+        "minWidth": 960,
+        "minHeight": 640,
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["msi", "nsis"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ],
+    "category": "Utility",
+    "shortDescription": "RULA/REBA/OWAS 근골격계 평가 도구",
+    "longDescription": "엑셀 평가지의 계산 로직을 그대로 구현한 가벼운 근골격계 인간공학 평가 앱."
+  }
+}
