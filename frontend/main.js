@@ -33,7 +33,7 @@ const TOOL_CONFIG = {
       { key: "neck", group: "B", label: "목", single: [0, 1, 2, 3], multi: [4, 5] },
       { key: "trunk", group: "B", label: "몸통", single: [0, 1, 2, 3], multi: [4, 5] },
       { key: "legs", group: "B", label: "다리", single: [0, 1], multi: [] },
-      { key: "muscle", group: "extra", label: "근육사용 (추가점수)", single: [0], multi: [] },
+      { key: "muscle", group: "extra", label: "근육사용 (추가점수)", single: [], multi: [0] },
       { key: "force", group: "extra", label: "무게/힘 (추가점수)", single: [0, 1, 2, 3], multi: [] },
     ],
   },
