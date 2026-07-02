@@ -16,42 +16,48 @@ if (!invoke) {
 
 // 각 평가 도구의 부위 정의 순서와 메타데이터.
 // (JSON의 parts는 HashMap이라 순서가 보장되지 않으므로 여기서 순서를 지정)
+//
+// 선택 규칙 (single / multi):
+//   - single: 상호배타적인 각도/자세 옵션. 같은 부위에서 하나만 선택 (라디오).
+//   - multi:  수식어/추가 특성. 각도와 함께 복수 선택 가능 (체크박스).
+//     single 과 multi 가 모두 비어있지 않은 부위는 두 섹션으로 나뉘어 표시.
+//     single 만 있으면 전체가 단일 선택, multi 만 있으면 전체가 복수 선택.
 const TOOL_CONFIG = {
   RULA: {
     title: "RULA (상지 평가)",
     parts: [
-      { key: "upper_arm", group: "A", label: "윗팔" },
-      { key: "lower_arm", group: "A", label: "아래팔" },
-      { key: "wrist", group: "A", label: "손목" },
-      { key: "wrist_twist", group: "A", label: "손목비틀림" },
-      { key: "neck", group: "B", label: "목" },
-      { key: "trunk", group: "B", label: "몸통" },
-      { key: "legs", group: "B", label: "다리" },
-      { key: "muscle", group: "extra", label: "근육사용 (추가점수)" },
-      { key: "force", group: "extra", label: "무게/힘 (추가점수)" },
+      { key: "upper_arm", group: "A", label: "윗팔", single: [0, 1, 2, 3], multi: [4, 5, 6] },
+      { key: "lower_arm", group: "A", label: "아래팔", single: [0, 1], multi: [2] },
+      { key: "wrist", group: "A", label: "손목", single: [0, 1, 2], multi: [3] },
+      { key: "wrist_twist", group: "A", label: "손목비틀림", single: [0, 1], multi: [] },
+      { key: "neck", group: "B", label: "목", single: [0, 1, 2, 3], multi: [4, 5] },
+      { key: "trunk", group: "B", label: "몸통", single: [0, 1, 2, 3], multi: [4, 5] },
+      { key: "legs", group: "B", label: "다리", single: [0, 1], multi: [] },
+      { key: "muscle", group: "extra", label: "근육사용 (추가점수)", single: [0], multi: [] },
+      { key: "force", group: "extra", label: "무게/힘 (추가점수)", single: [0, 1, 2, 3], multi: [] },
     ],
   },
   REBA: {
     title: "REBA (전신 평가)",
     parts: [
-      { key: "trunk", group: "A", label: "허리" },
-      { key: "neck", group: "A", label: "목" },
-      { key: "legs", group: "A", label: "다리" },
-      { key: "force_a", group: "extra", label: "무게 (추가점수)" },
-      { key: "upper_arm", group: "B", label: "상완" },
-      { key: "lower_arm", group: "B", label: "전완" },
-      { key: "wrist", group: "B", label: "손목" },
-      { key: "coupling", group: "extra", label: "손잡이 (추가점수)" },
-      { key: "activity", group: "extra", label: "활동 점수" },
+      { key: "trunk", group: "A", label: "허리", single: [0, 1, 2, 3], multi: [4] },
+      { key: "neck", group: "A", label: "목", single: [0, 1], multi: [2] },
+      { key: "legs", group: "A", label: "다리", single: [0, 1, 2, 3], multi: [] },
+      { key: "force_a", group: "extra", label: "무게 (추가점수)", single: [0, 1, 2], multi: [3] },
+      { key: "upper_arm", group: "B", label: "상완", single: [0, 1, 2, 3], multi: [4, 5, 6] },
+      { key: "lower_arm", group: "B", label: "전완", single: [0, 1], multi: [] },
+      { key: "wrist", group: "B", label: "손목", single: [0, 1], multi: [2] },
+      { key: "coupling", group: "extra", label: "손잡이 (추가점수)", single: [0, 1, 2, 3], multi: [] },
+      { key: "activity", group: "extra", label: "활동 점수", single: [], multi: [0, 1, 2] },
     ],
   },
   OWAS: {
     title: "OWAS (작업 자세 분석)",
     parts: [
-      { key: "back", group: "main", label: "허리" },
-      { key: "arms", group: "main", label: "팔" },
-      { key: "legs", group: "main", label: "다리" },
-      { key: "force", group: "main", label: "무게/하중" },
+      { key: "back", group: "main", label: "허리", single: [0, 1, 2, 3], multi: [] },
+      { key: "arms", group: "main", label: "팔", single: [0, 1, 2], multi: [] },
+      { key: "legs", group: "main", label: "다리", single: [0, 1, 2, 3, 4, 5, 6], multi: [] },
+      { key: "force", group: "main", label: "무게/하중", single: [0, 1, 2], multi: [] },
     ],
   },
 };
@@ -123,45 +129,95 @@ function render() {
         : p.group === "B"
         ? '<span class="group-tag gb">B</span>'
         : "";
+    const singleIdxs = p.single || [];
+    const multiIdxs = p.multi || [];
+    const sel = selections[currentTool][p.key];
+
     html += `<div class="part-card ${extra ? "is-extra" : ""}" data-part="${p.key}">`;
     html += `<div class="part-head"><span>${p.label} ${groupTag}</span>`;
     html += `<span class="part-sum" data-sum="${p.key}">—</span></div>`;
     html += `<div class="part-items">`;
-    part.items.forEach((item, idx) => {
-      const checked = selections[currentTool][p.key].includes(idx) ? "checked" : "";
-      const cls = checked ? "checked" : "";
-      html += `<label class="option ${cls}" data-part="${p.key}" data-idx="${idx}">
-        <input type="checkbox" data-part="${p.key}" data-idx="${idx}" ${checked} />
-        <span class="opt-text">${item.desc}</span>
-        <span class="opt-score">${fmtScore(item.score)}</span>
-      </label>`;
-    });
+
+    // 단일 선택 섹션 (라디오). singleIdxs 가 있으면 렌더링.
+    if (singleIdxs.length) {
+      html += renderItems(part, singleIdxs, sel, p.key, "radio");
+    }
+    // 복수 선택 섹션 (체크박스). 두 섹션이 모두 있으면 구분선.
+    if (multiIdxs.length) {
+      if (singleIdxs.length) html += `<div class="section-divider"></div>`;
+      html += renderItems(part, multiIdxs, sel, p.key, "checkbox");
+    }
     html += `</div></div>`;
   }
   list.innerHTML = html;
 
-  // 이벤트 연결
-  list.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
-    cb.addEventListener("change", onChange);
+  // 이벤트 연결: 라디오(단일)와 체크박스(복수) 모두
+  list.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach((el) => {
+    el.addEventListener("change", onChange);
   });
   recompute();
+}
+
+// 항목 목록을 HTML 로 렌더링. type 은 "radio" | "checkbox".
+function renderItems(part, idxs, sel, partKey, type) {
+  const name = type === "radio" ? ` name="${partKey}-single"` : "";
+  let html = "";
+  for (const idx of idxs) {
+    const item = part.items[idx];
+    const isChecked = sel.includes(idx);
+    const checked = isChecked ? "checked" : "";
+    const cls = isChecked ? "checked" : "";
+    html += `<label class="option ${cls}" data-part="${partKey}" data-idx="${idx}">
+      <input type="${type}" data-part="${partKey}" data-idx="${idx}"${name} ${checked} />
+      <span class="opt-text">${item.desc}</span>
+      <span class="opt-score">${fmtScore(item.score)}</span>
+    </label>`;
+  }
+  return html;
 }
 
 // ---------------------------------------------------------------------------
 // 선택 변경 처리
 // ---------------------------------------------------------------------------
 function onChange(e) {
-  const cb = e.target;
-  const partKey = cb.dataset.part;
-  const idx = Number(cb.dataset.idx);
+  const el = e.target;
+  const partKey = el.dataset.part;
+  const idx = Number(el.dataset.idx);
   const sel = selections[currentTool][partKey];
-  if (cb.checked) {
-    if (!sel.includes(idx)) sel.push(idx);
-    cb.closest(".option").classList.add("checked");
+  const partMeta = TOOL_CONFIG[currentTool].parts.find((p) => p.key === partKey);
+  const isSingle = partMeta && (partMeta.single || []).includes(idx);
+
+  if (el.type === "radio") {
+    // 단일 선택: 같은 single 그룹의 기존 선택을 모두 제거하고 새 것만 추가.
+    // multi 그룹 선택은 유지.
+    const multiIdxs = partMeta.multi || [];
+    sel.length = 0;
+    if (el.checked) sel.push(idx);
+    // multi 선택 복원
+    for (const m of multiIdxs) {
+      const mEl = document.querySelector(
+        `input[type="checkbox"][data-part="${partKey}"][data-idx="${m}"]`
+      );
+      if (mEl && mEl.checked && !sel.includes(m)) sel.push(m);
+    }
+    // 라디오 그룹의 label checked 클래스 갱신
+    document
+      .querySelectorAll(`label.option[data-part="${partKey}"]`)
+      .forEach((lab) => {
+        const labIdx = Number(lab.dataset.idx);
+        const inSingle = (partMeta.single || []).includes(labIdx);
+        if (inSingle) lab.classList.toggle("checked", labIdx === idx && el.checked);
+      });
   } else {
-    const i = sel.indexOf(idx);
-    if (i >= 0) sel.splice(i, 1);
-    cb.closest(".option").classList.remove("checked");
+    // 체크박스(복수): 토글
+    if (el.checked) {
+      if (!sel.includes(idx)) sel.push(idx);
+      el.closest(".option").classList.add("checked");
+    } else {
+      const i = sel.indexOf(idx);
+      if (i >= 0) sel.splice(i, 1);
+      el.closest(".option").classList.remove("checked");
+    }
   }
   recompute();
 }

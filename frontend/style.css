@@ -172,6 +172,13 @@ body {
 .part-card.is-extra .part-head .part-sum { background: #64748b; }
 
 .part-items { padding: 6px 0; }
+
+/* 단일/복수 선택 섹션 구분선 */
+.section-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 14px;
+}
 .option {
   display: flex;
   align-items: center;
