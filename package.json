@@ -1,0 +1,17 @@
+{
+  "name": "msd-assessment",
+  "version": "0.1.0",
+  "private": true,
+  "description": "근골격계 평가 (RULA/REBA/OWAS) 데스크톱 앱",
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "build": "tauri build"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  },
+  "dependencies": {
+    "three": "^0.185.1"
+  }
+}
