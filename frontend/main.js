@@ -22,42 +22,47 @@ if (!invoke) {
 //   - multi:  수식어/추가 특성. 각도와 함께 복수 선택 가능 (체크박스).
 //     single 과 multi 가 모두 비어있지 않은 부위는 두 섹션으로 나뉘어 표시.
 //     single 만 있으면 전체가 단일 선택, multi 만 있으면 전체가 복수 선택.
+//
+// defaultIdx: 단일 선택(single) 부위의 중립 기준 자세 인덱스.
+//   앱 시작/초기화 시 이 값이 미리 선택된다.
+//   사람은 항상 어떤 자세를 취하고 있으므로 빈 상태 대신 중립 자세를 기본값으로 둔다.
+//   복수 선택(multi) 부위는 "해당할 때만" 켜는 성격이므로 기본값 없음.
 const TOOL_CONFIG = {
   RULA: {
     title: "RULA (상지 평가)",
     parts: [
-      { key: "upper_arm", group: "A", label: "윗팔", single: [0, 1, 2, 3], multi: [4, 5, 6] },
-      { key: "lower_arm", group: "A", label: "아래팔", single: [0, 1], multi: [2] },
-      { key: "wrist", group: "A", label: "손목", single: [0, 1, 2], multi: [3] },
-      { key: "wrist_twist", group: "A", label: "손목비틀림", single: [0, 1], multi: [] },
-      { key: "neck", group: "B", label: "목", single: [0, 1, 2, 3], multi: [4, 5] },
-      { key: "trunk", group: "B", label: "몸통", single: [0, 1, 2, 3], multi: [4, 5] },
-      { key: "legs", group: "B", label: "다리", single: [0, 1], multi: [] },
+      { key: "upper_arm", group: "A", label: "윗팔", single: [0, 1, 2, 3], multi: [4, 5, 6], defaultIdx: 0 },
+      { key: "lower_arm", group: "A", label: "아래팔", single: [0, 1], multi: [2], defaultIdx: 0 },
+      { key: "wrist", group: "A", label: "손목", single: [0, 1, 2], multi: [3], defaultIdx: 0 },
+      { key: "wrist_twist", group: "A", label: "손목비틀림", single: [0, 1], multi: [], defaultIdx: 0 },
+      { key: "neck", group: "B", label: "목", single: [0, 1, 2, 3], multi: [4, 5], defaultIdx: 0 },
+      { key: "trunk", group: "B", label: "몸통", single: [0, 1, 2, 3], multi: [4, 5], defaultIdx: 0 },
+      { key: "legs", group: "B", label: "다리", single: [0, 1], multi: [], defaultIdx: 0 },
       { key: "muscle", group: "extra", label: "근육사용 (추가점수)", single: [], multi: [0] },
-      { key: "force", group: "extra", label: "무게/힘 (추가점수)", single: [0, 1, 2, 3], multi: [] },
+      { key: "force", group: "extra", label: "무게/힘 (추가점수)", single: [0, 1, 2, 3], multi: [], defaultIdx: 0 },
     ],
   },
   REBA: {
     title: "REBA (전신 평가)",
     parts: [
-      { key: "trunk", group: "A", label: "허리", single: [0, 1, 2, 3], multi: [4] },
-      { key: "neck", group: "A", label: "목", single: [0, 1], multi: [2] },
-      { key: "legs", group: "A", label: "다리", single: [0, 1, 2, 3], multi: [] },
-      { key: "force_a", group: "extra", label: "무게 (추가점수)", single: [0, 1, 2], multi: [3] },
-      { key: "upper_arm", group: "B", label: "상완", single: [0, 1, 2, 3], multi: [4, 5, 6] },
-      { key: "lower_arm", group: "B", label: "전완", single: [0, 1], multi: [] },
-      { key: "wrist", group: "B", label: "손목", single: [0, 1], multi: [2] },
-      { key: "coupling", group: "extra", label: "손잡이 (추가점수)", single: [0, 1, 2, 3], multi: [] },
+      { key: "trunk", group: "A", label: "허리", single: [0, 1, 2, 3], multi: [4], defaultIdx: 0 },
+      { key: "neck", group: "A", label: "목", single: [0, 1], multi: [2], defaultIdx: 0 },
+      { key: "legs", group: "A", label: "다리", single: [0, 1, 2, 3], multi: [], defaultIdx: 0 },
+      { key: "force_a", group: "extra", label: "무게 (추가점수)", single: [0, 1, 2], multi: [3], defaultIdx: 0 },
+      { key: "upper_arm", group: "B", label: "상완", single: [0, 1, 2, 3], multi: [4, 5, 6], defaultIdx: 0 },
+      { key: "lower_arm", group: "B", label: "전완", single: [0, 1], multi: [], defaultIdx: 0 },
+      { key: "wrist", group: "B", label: "손목", single: [0, 1], multi: [2], defaultIdx: 0 },
+      { key: "coupling", group: "extra", label: "손잡이 (추가점수)", single: [0, 1, 2, 3], multi: [], defaultIdx: 0 },
       { key: "activity", group: "extra", label: "활동 점수", single: [], multi: [0, 1, 2] },
     ],
   },
   OWAS: {
     title: "OWAS (작업 자세 분석)",
     parts: [
-      { key: "back", group: "main", label: "허리", single: [0, 1, 2, 3], multi: [] },
-      { key: "arms", group: "main", label: "팔", single: [0, 1, 2], multi: [] },
-      { key: "legs", group: "main", label: "다리", single: [0, 1, 2, 3, 4, 5, 6], multi: [] },
-      { key: "force", group: "main", label: "무게/하중", single: [0, 1, 2], multi: [] },
+      { key: "back", group: "main", label: "허리", single: [0, 1, 2, 3], multi: [], defaultIdx: 0 },
+      { key: "arms", group: "main", label: "팔", single: [0, 1, 2], multi: [], defaultIdx: 0 },
+      { key: "legs", group: "main", label: "다리", single: [0, 1, 2, 3, 4, 5, 6], multi: [], defaultIdx: 1 },
+      { key: "force", group: "main", label: "무게/하중", single: [0, 1, 2], multi: [], defaultIdx: 0 },
     ],
   },
 };
@@ -79,12 +84,8 @@ async function init() {
       `<div class="loading" style="color:#dc2626">데이터 로드 실패: ${e}</div>`;
     return;
   }
-  // 각 도구의 부위별 선택 배열 초기화
-  for (const tool of Object.keys(TOOL_CONFIG)) {
-    for (const p of TOOL_CONFIG[tool].parts) {
-      selections[tool][p.key] = [];
-    }
-  }
+  // 각 도구의 부위별 선택 배열 초기화 + 중립 기준 자세 적용
+  applyDefaults();
 
   // 툴바 버튼 이벤트
   document.querySelector("#btnReset").addEventListener("click", resetAll);
@@ -98,14 +99,28 @@ async function init() {
 }
 
 // ---------------------------------------------------------------------------
+// 중립 기준 자세 적용
+// ---------------------------------------------------------------------------
+// 단일 선택(single) 부위에 defaultIdx 가 정의되어 있으면 그 값을 미리 선택한다.
+// 사람은 항상 어떤 자세를 취하고 있으므로, 빈 상태 대신 중립 자세를 기본값으로 둔다.
+// 복수 선택(multi) 부위는 "해당할 때만" 켜는 성격이므로 기본값을 두지 않는다.
+function applyDefaults() {
+  for (const tool of Object.keys(TOOL_CONFIG)) {
+    for (const p of TOOL_CONFIG[tool].parts) {
+      if (p.defaultIdx !== undefined && p.single && p.single.length) {
+        selections[tool][p.key] = [p.defaultIdx];
+      } else {
+        selections[tool][p.key] = [];
+      }
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // 초기화
 // ---------------------------------------------------------------------------
 function resetAll() {
-  for (const tool of Object.keys(selections)) {
-    for (const part of Object.keys(selections[tool])) {
-      selections[tool][part] = [];
-    }
-  }
+  applyDefaults();
   render();
 }
 
