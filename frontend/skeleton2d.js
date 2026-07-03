@@ -185,3 +185,6 @@ function render2D(container, pose) {
 }
 
 window.Skeleton2D = { render: render2D };
+
+// ES 모듈 export (main.js 모듈화 대응)
+export { render2D as render };

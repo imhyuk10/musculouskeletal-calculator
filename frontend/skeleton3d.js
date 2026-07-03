@@ -370,5 +370,8 @@ function dispose3D() {
   }
 }
 
-// 전역 노출 (main.js 일반 스크립트에서 사용)
+// 전역 노출 (하위 호환)
 window.Skeleton3D = { render: render3D, dispose: dispose3D };
+
+// ES 모듈 export (main.js 모듈화 대응)
+export { render3D as render, dispose3D as dispose };

@@ -198,3 +198,6 @@ function buildPose(tool, selectionsForTool) {
 
 // 전역으로 노출 (ESM 없이 단순 스크립트 구조 유지)
 window.SkeletonMapper = { buildPose, defaultPose };
+
+// ES 모듈 export (main.js 모듈화 대응)
+export { buildPose, defaultPose };
