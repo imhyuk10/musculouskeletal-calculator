@@ -1,14 +1,6 @@
 // 근골격계 평가 앱 프론트엔드 로직.
 // Tauri 백엔드의 get_data / calculate 명령을 호출해
 // 부위·항목 데이터를 렌더링하고 선택 시 실시간으로 점수를 산출한다.
-//
-// ES 모듈로 작성 — skeleton3d.js(Three.js)를 import 해 로딩 순서를 보장한다.
-// 일반 스크립트일 때는 window.Skeleton3D 가 준비되기 전에 init() 이 실행되어
-// 3D 모드가 영원히 "로딩 중"에 머무는 문제가 있었다.
-
-import { buildPose } from "./skeleton.js";
-import { render as render2D } from "./skeleton2d.js";
-import { render as render3D, dispose as dispose3D } from "./skeleton3d.js";
 
 // Tauri 글로벌 API에서 invoke 획득.
 // tauri.conf.json 의 app.withGlobalTauri = true 로 노출된다.
@@ -97,11 +89,6 @@ async function init() {
 
   // 툴바 버튼 이벤트
   document.querySelector("#btnReset").addEventListener("click", resetAll);
-
-  // 시각화 2D/3D 토글
-  document.querySelectorAll(".vbtn").forEach((b) => {
-    b.addEventListener("click", () => setViewerMode(b.dataset.mode));
-  });
 
   render();
 }
@@ -280,36 +267,6 @@ async function recompute() {
     return;
   }
   renderResult(result, partSums);
-  updateViewer();
-}
-
-// ---------------------------------------------------------------------------
-// 자세 시각화
-// ---------------------------------------------------------------------------
-let viewerMode = "2D"; // "2D" | "3D"
-
-function updateViewer() {
-  const canvas = document.querySelector("#viewerCanvas");
-  if (!canvas) return;
-  const pose = buildPose(currentTool, selections[currentTool]);
-
-  if (viewerMode === "2D") {
-    // 3D가 켜져 있었다면 해제
-    dispose3D();
-    render2D(canvas, pose);
-  } else {
-    // 3D 모드: SVG 내용 비우고 3D 렌더링
-    canvas.innerHTML = "";
-    render3D(canvas, pose);
-  }
-}
-
-function setViewerMode(mode) {
-  viewerMode = mode;
-  document.querySelectorAll(".vbtn").forEach((b) =>
-    b.classList.toggle("active", b.dataset.mode === mode)
-  );
-  updateViewer();
 }
 
 // ---------------------------------------------------------------------------
